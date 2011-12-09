@@ -1,19 +1,30 @@
 #include <iostream>
 #include <stdlib.h>
 using namespace std;
-
-struct body {
-  double x,y,z,vx,vy,vz;
-};
+#define ADDVEC(a,b) a.x = a.x + b.x; a.y = a.y + b.y; a.z = a.z + b.z
+#define ADDVECMULT(a,b,s) a.x = a.x + b.x*s; a.y = a.y + b.y*s; a.z = a.z + b.z*s
 
 struct v3 {
   double x,y,z;
 };
 
+struct body {
+  v3 pos,vel;
+};
+
+void printv3(v3 vec)
+{
+  cout << "(" << vec.x << "," << vec.y << "," << vec.z << ")";
+}
+
+
 void printBody (body b)
 {
-  cout << "body < P(" << b.x << "," << b.y << "," << b.z << ") ";
-  cout << "V(" << b.vx << "," << b.vy << "," << b.  vz << ") >\n";
+  cout << "body < P";
+  printv3(b.pos);
+  cout << " V";
+  printv3(b.vel);
+  cout << " >\n";
 }
 
 void printBodies(body* bodies,int n)
@@ -33,7 +44,8 @@ int inputCorrupt()
 void step(body* bodies,int n, double dt) {
   for (int i=0; i < n; i++) {
     // For each body
-    bodies[i].x = bodies[i].x+bodies[i].vx;
+    // pos = pos + vel*dt
+    ADDVECMULT(bodies[i].pos, bodies[i].vel,dt);
   }
 }
 
@@ -61,12 +73,12 @@ int main(int argc, char *argv[])
   while (cin >> k)
   {
     if (i > n-1) return inputCorrupt();
-    bods[i].x = k;
-    cin >> bods[i].y;
-    cin >> bods[i].z;
-    cin >> bods[i].vx;
-    cin >> bods[i].vy;
-    cin >> bods[i].vz;
+    bods[i].pos.x = k;
+    cin >> bods[i].pos.y;
+    cin >> bods[i].pos.z;
+    cin >> bods[i].vel.x;
+    cin >> bods[i].vel.y;
+    cin >> bods[i].vel.z;
     i++;
   }
   if (i != n) return inputCorrupt();
