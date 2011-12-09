@@ -41,11 +41,30 @@ int inputCorrupt()
   return -1;
 }
 
+v3 getForces(body b,body* bodies, int n) {
+  v3 a = {0,0,0}; // Initialize to zeros
+  for (int i=0; i < n; i++) {
+    // For each body
+    // Get direction vector between two bodies ^d
+    // Get distance magnitude r
+    // ^a = ^d/r * G * m * m / (r*r);
+  }
+  return a;
+}
+
 void step(body* bodies,int n, double dt) {
   for (int i=0; i < n; i++) {
     // For each body
+    
+    // Calculate accelerations on body from other bodies
+    v3 a = getForces(bodies[i],bodies,n);
+    
     // pos = pos + vel*dt
     ADDVECMULT(bodies[i].pos, bodies[i].vel,dt);
+    
+    // vel = vel + acceleration*dt // After position update so vel doesn't change first
+    ADDVECMULT(bodies[i].vel, a, dt);
+    
   }
 }
 
