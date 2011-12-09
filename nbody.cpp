@@ -25,30 +25,38 @@ struct body {
 
 void printv3(v3 vec)
 {
-  cout << "(" << vec.x << "," << vec.y << "," << vec.z << ")";
+  cerr << "(" << vec.x << "," << vec.y << "," << vec.z << ")";
 }
 
 
 void printBody (body b)
 {
-  cout << "body < P";
+  cerr << "body < P";
   printv3(b.pos);
-  cout << " V";
+  cerr << " V";
   printv3(b.vel);
-  cout << " >\n";
+  cerr << " >\n";
 }
 
 void printBodies(body* bodies,int n)
 {
   for (int i=0;i<n;i++) {
-    cout << i << " ";
+    cerr << i << ' ';
     printBody(bodies[i]);
+  }
+}
+
+void outputBodies(body* bodies,int n) {
+  for (int i=0;i<n;i++) {
+    cout << bodies[i].pos.x << ' ' << bodies[i].pos.y << ' ';
+    cout << bodies[i].pos.z << ' ' << bodies[i].vel.x << ' ';
+    cout << bodies[i].vel.y << ' ' << bodies[i].vel.z << '\n';
   }
 }
 
 int inputCorrupt()
 {
-  cout << "Corrupt input file\n";
+  cerr << "Corrupt input file\n";
   return -1;
 }
 
@@ -92,11 +100,15 @@ void step(body* bodies,int n, double dt) {
 }
 
 void simulate(body* bodies,int n, int steps,double dt) {
+  cout << "SIMULATION " << n << " BODIES, ";
+  cout << steps << " STEPS, " << dt << " DT\n";
   for (int i=1;i<=steps;i++){
     // For each step
     step(bodies,n,dt);
+    outputBodies(bodies,n);
+    
     if (VERBOSE) {
-      cout << "Step " << i << ", Time " << i*dt << '\n';
+      cerr << "Step " << i << ", Time " << i*dt << '\n';
       printBodies(bodies,n);
     }
   }
@@ -109,9 +121,9 @@ int main(int argc, char *argv[])
   int n; // Number of bodies, passed in as first digit in input
   body* bods = NULL; // Contains all the nbodies
   
-  cout << "Reading input...\n";
+  cerr << "Reading input...\n";
   cin >> n;
-  cout << "Generating " << n << " bodies...\n";
+  cerr << "Generating " << n << " bodies...\n";
   bods = new body[n];
   
   i = 0;
@@ -133,13 +145,13 @@ int main(int argc, char *argv[])
   if (argc == 3) {
     int steps = atoi(argv[1]);
     double dt = atof(argv[2]);
-    cout << "Steps to iterate: " << steps << ", dt: " << dt << '\n';
-    cout << "SIMULATION BEGIN\n";
+    cerr << "Steps to iterate: " << steps << ", dt: " << dt << '\n';
+    cerr << "SIMULATION BEGIN\n";
     simulate(bods,n,steps,dt);
-    cout << "SIMULATION END\n";
+    cerr << "SIMULATION END\n";
     printBodies(bods,n);
   } else {
-    cout << "You can pass in an integer and a double "
+    cerr << "You can pass in an integer and a double "
                 "number of steps and dt";
   }
   
@@ -147,6 +159,6 @@ int main(int argc, char *argv[])
   delete [] bods; 
   bods = NULL;
   
-  cout << "\nDone reading file.";
+  cerr << "\nDone reading file.";
   return 0;
 }
