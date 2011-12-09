@@ -2,7 +2,7 @@ clear all; close all; clc;
 MODE_REALTIME = 1;
 MODE_PLOT = 2;
 
-MODE = MODE_REALTIME;
+MODE = MODE_PLOT;
 
 
 filename = 'testOutput.out';
@@ -24,8 +24,8 @@ data = fscanf(f,'%f %f %f %f %f %f', [6 inf])';
 fclose(f);
 
 % GRAPHICS
-colors = 'bgryk';
-getColor = @(x) colors(mod(x,length(colors)));
+colors = 'kbgry';
+getColor = @(x) colors(mod(x,length(colors))+1);
 figure;
 axis equal;
 if (MODE == MODE_PLOT)
@@ -43,7 +43,7 @@ elseif (MODE == MODE_REALTIME)
         plot(data((t-1)*n+1:t*n,1),data((t-1)*n+1:t*n,2),'.k');
         title(sprintf('%i bodies, %i steps, %g dt, Time: %g/%g',n,steps,dt,t*dt,dt*steps));
         %hold off;
-        axis([-2 2 -2 2]);
+        %axis([-2 2 -2 2]);
         pause(0.0001);
     end
 end
