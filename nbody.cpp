@@ -1,11 +1,9 @@
 #include <iostream>
 using namespace std;
 
-#define NUM_BODS 2
-
 struct body {
   double x,y,z,vx,vy,vz;
-} bods [NUM_BODS];
+};
 
 void printBody (body b)
 {
@@ -15,14 +13,24 @@ void printBody (body b)
 
 int main(int argc, char *argv[])
 {
-  int i;
+  int i; // iterator
   float k;
+  int n; // Number of bodies, passed in as first digit in input
+  body* bods = NULL; // Contains all the nbodies
   
-  cout << "Hello World\n";
+  cout << "Reading input...\n";
+  cin >> n;
+  cout << "Generating " << n << " bodies...\n";
+  bods = new body[n];
   
   i = 0;
   while (cin >> k)
   {
+    cout << i << endl;
+    if (i > n-1) {
+      cout << "Corrupt input file\n";
+      return -1;
+    }
     bods[i].x = k;
     cin >> bods[i].y;
     cin >> bods[i].z;
@@ -31,8 +39,12 @@ int main(int argc, char *argv[])
     cin >> bods[i].vz;
     i++;
   }
+  if (i != n) {
+    cout << "Corrupt input file\n";
+    return -1;
+  }
   
-  for (i=0;i<NUM_BODS;i++) {
+  for (i=0;i<n;i++) {
     printBody(bods[i]);
   }
   

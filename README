@@ -5,6 +5,3 @@ g++ nbody.cpp -o nbody.exe -enable-auto-import
 
 To run:
 nbody.exe < testInput
-
-
-
