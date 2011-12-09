@@ -1,1 +1,10 @@
-"basic nbody program in c++" 
+Basic nbody program in c++
+
+To compile:
+g++ nbody.cpp -o nbody.exe -enable-auto-import
+
+To run:
+nbody.exe < testInput
+
+
+
