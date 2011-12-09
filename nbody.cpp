@@ -1,8 +1,19 @@
 #include <iostream>
 #include <stdlib.h>
+#include <math.h>
 using namespace std;
-#define ADDVEC(a,b) a.x = a.x + b.x; a.y = a.y + b.y; a.z = a.z + b.z
-#define ADDVECMULT(a,b,s) a.x = a.x + b.x*s; a.y = a.y + b.y*s; a.z = a.z + b.z*s
+#define SETVEC(a,xx,yy,zz) a.x = xx; a.y = yy; a.z = zz
+#define ADDVEC(c,a,b) c.x = a.x + b.x; c.y = a.y + b.y; c.z = a.z + b.z
+#define SUBVEC(c,a,b) c.x = a.x - b.x; c.y = a.y - b.y; c.z = a.z - b.z
+#define ADDVECMULT(c,a,b,s) c.x = a.x + b.x*(s); c.y = a.y + b.y*(s); c.z = a.z + b.z*(s)
+#define MAGN2(a) (a.x*a.x+a.y*a.y+a.z*a.z)
+#define MAGN(a) sqrt(MAGN2(a))
+#define MULTVECSCALAR(c,a,s) c.x = a.x*(s); c.y = a.y*(s); c.z = a.z*(s)
+
+#define G 1.0
+#define ETA 0.01 // Ignore distances less than this
+
+#define VERBOSE true
 
 struct v3 {
   double x,y,z;
@@ -41,13 +52,25 @@ int inputCorrupt()
   return -1;
 }
 
-v3 getForces(body b,body* bodies, int n) {
+v3 getForces(int index, body* bodies, int n) {
   v3 a = {0,0,0}; // Initialize to zeros
   for (int i=0; i < n; i++) {
+    if (i == index) continue; // Skip same one
     // For each body
     // Get direction vector between two bodies ^d
+    v3 d;
+    SUBVEC(d,bodies[i].pos,bodies[index].pos); // d = bodies[i].pos - b.pos
+    
     // Get distance magnitude r
+    double r2 = MAGN2(d);
+    double r = sqrt(r2);
+    if (r < ETA) continue; // Skip acceleration if distance is less than ETA
+    MULTVECSCALAR(d,d,1.0/r);
+    
     // ^a = ^d/r * G * m * m / (r*r);
+    // accels = accels + ^a
+    ADDVECMULT(a,a, d, G*1*1 / (r2*r) ) ;
+    
   }
   return a;
 }
@@ -57,13 +80,13 @@ void step(body* bodies,int n, double dt) {
     // For each body
     
     // Calculate accelerations on body from other bodies
-    v3 a = getForces(bodies[i],bodies,n);
+    v3 a = getForces(i,bodies,n);
     
     // pos = pos + vel*dt
-    ADDVECMULT(bodies[i].pos, bodies[i].vel,dt);
+    ADDVECMULT(bodies[i].pos,bodies[i].pos, bodies[i].vel,dt);
     
     // vel = vel + acceleration*dt // After position update so vel doesn't change first
-    ADDVECMULT(bodies[i].vel, a, dt);
+    ADDVECMULT(bodies[i].vel,bodies[i].vel, a, dt);
     
   }
 }
@@ -72,7 +95,10 @@ void simulate(body* bodies,int n, int steps,double dt) {
   for (int i=1;i<=steps;i++){
     // For each step
     step(bodies,n,dt);
-    cout << "Step " << i << ", Time " << i*dt << '\n';
+    if (VERBOSE) {
+      cout << "Step " << i << ", Time " << i*dt << '\n';
+      printBodies(bodies,n);
+    }
   }
 }
 
@@ -108,7 +134,9 @@ int main(int argc, char *argv[])
     int steps = atoi(argv[1]);
     double dt = atof(argv[2]);
     cout << "Steps to iterate: " << steps << ", dt: " << dt << '\n';
+    cout << "SIMULATION BEGIN\n";
     simulate(bods,n,steps,dt);
+    cout << "SIMULATION END\n";
     printBodies(bods,n);
   } else {
     cout << "You can pass in an integer and a double "

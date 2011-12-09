@@ -4,4 +4,7 @@ To compile:
 g++ nbody.cpp -o nbody.exe -enable-auto-import
 
 To run:
-nbody.exe < testInput
+nbody.exe STEPS DT < testInput
+
+example:
+nbody.exe 10 0.01 < testInput
