@@ -7,4 +7,4 @@ To run:
 nbody.exe STEPS DT < testInput
 
 example:
-nbody.exe 10 0.01 < testInput > testOutput.out
+nbody.exe 1000 0.01 < testInput > testOutput.out

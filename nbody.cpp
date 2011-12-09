@@ -13,8 +13,6 @@ using namespace std;
 #define G 1.0
 #define ETA 0.01 // Ignore distances less than this
 
-#define VERBOSE true
-
 struct v3 {
   double x,y,z;
 };
@@ -99,15 +97,16 @@ void step(body* bodies,int n, double dt) {
   }
 }
 
-void simulate(body* bodies,int n, int steps,double dt) {
+void simulate(body* bodies,int n, int steps,double dt, bool verbose) {
   cout << "SIMULATION " << n << " BODIES, ";
   cout << steps << " STEPS, " << dt << " DT\n";
+  cerr << "Simulating " << n << " bodies for " << steps << " steps, using dt = " << dt << '\n';
   for (int i=1;i<=steps;i++){
     // For each step
     step(bodies,n,dt);
     outputBodies(bodies,n);
     
-    if (VERBOSE) {
+    if (verbose) {
       cerr << "Step " << i << ", Time " << i*dt << '\n';
       printBodies(bodies,n);
     }
@@ -142,12 +141,25 @@ int main(int argc, char *argv[])
   
   printBodies(bods,n);
   
-  if (argc == 3) {
+  if (argc >= 3) {
     int steps = atoi(argv[1]);
     double dt = atof(argv[2]);
     cerr << "Steps to iterate: " << steps << ", dt: " << dt << '\n';
     cerr << "SIMULATION BEGIN\n";
-    simulate(bods,n,steps,dt);
+    bool verbose = false;
+    if (argc == 4) { 
+      switch (atoi(argv[3])) {
+        case 1: // true         
+          verbose = true; 
+          break;
+        case 0: // false
+          verbose = false;
+          break;
+        default:
+          cout << "WARNING: VERBOSE argument " << argv[3] << " not understood (should be 1 or 0)";
+      }
+    }
+    simulate(bods,n,steps,dt,verbose);
     cerr << "SIMULATION END\n";
     printBodies(bods,n);
   } else {
