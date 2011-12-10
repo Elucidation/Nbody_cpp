@@ -1,6 +1,7 @@
 #include <iostream>
 #include <stdlib.h>
 #include <math.h>
+#include <ctime>
 using namespace std;
 #define SETVEC(a,xx,yy,zz) a.x = xx; a.y = yy; a.z = zz
 #define ADDVEC(c,a,b) c.x = a.x + b.x; c.y = a.y + b.y; c.z = a.z + b.z
@@ -11,7 +12,7 @@ using namespace std;
 #define MULTVECSCALAR(c,a,s) c.x = a.x*(s); c.y = a.y*(s); c.z = a.z*(s)
 
 #define G 1.0
-#define ETA 0.01 // Ignore distances less than this
+#define ETA 0.1 // Ignore distances less than this
 
 struct v3 {
   double x,y,z;
@@ -68,9 +69,9 @@ v3 getForces(int index, body* bodies, int n) {
     SUBVEC(d,bodies[i].pos,bodies[index].pos); // d = bodies[i].pos - b.pos
     
     // Get distance magnitude r
-    double r2 = MAGN2(d);
-    double r = sqrt(r2);
-    if (r < ETA) continue; // Skip acceleration if distance is less than ETA
+    double r2 = MAGN2(d) + ETA*ETA; // ETA softening here.
+    double r = sqrt(r2); 
+    //if (r < ETA) continue; // Skip acceleration if distance is less than ETA
     MULTVECSCALAR(d,d,1.0/r);
     
     // ^a = ^d/r * G * m * m / (r*r);
@@ -82,25 +83,44 @@ v3 getForces(int index, body* bodies, int n) {
 }
 
 void step(body* bodies,int n, double dt) {
+  //~ for (int i=0; i < n; i++) {
+    //~ // For each body
+    
+    //~ // Calculate accelerations on body from other bodies
+    //~ v3 a = getForces(i,bodies,n);
+    
+    //~ // pos = pos + vel*dt
+    //~ ADDVECMULT(bodies[i].pos,bodies[i].pos, bodies[i].vel,dt);
+    
+    //~ // vel = vel + acceleration*dt // After position update so vel doesn't change first
+    //~ ADDVECMULT(bodies[i].vel,bodies[i].vel, a, dt);
+  //~ }
+  double dx,dy,r,f,fx,fy;
   for (int i=0; i < n; i++) {
-    // For each body
-    
-    // Calculate accelerations on body from other bodies
-    v3 a = getForces(i,bodies,n);
-    
-    // pos = pos + vel*dt
-    ADDVECMULT(bodies[i].pos,bodies[i].pos, bodies[i].vel,dt);
-    
-    // vel = vel + acceleration*dt // After position update so vel doesn't change first
-    ADDVECMULT(bodies[i].vel,bodies[i].vel, a, dt);
-    
+    for (int j=i+1; j<n;j++) {
+      dx = bodies[j].pos.x - bodies[i].pos.x;
+      dy = bodies[j].pos.y - bodies[i].pos.y;
+      r = sqrt(dx*dx+dy*dy) + ETA;
+      f = double(G*1*1)/(r*r);
+      fx = dx / r * f;
+      fy = dy / r * f;
+      bodies[i].vel.x += fx*dt;
+      bodies[i].vel.y += fy*dt;
+      bodies[j].vel.x -= fx*dt;
+      bodies[j].vel.y -= fy*dt;
+    }
+  }
+  for (int i=0; i < n; i++) {
+    bodies[i].pos.x += bodies[i].vel.x*dt;
+    bodies[i].pos.y += bodies[i].vel.y*dt;
   }
 }
 
 void simulate(body* bodies,int n, int steps,double dt, bool verbose) {
-  cout << "SIMULATION " << n << " BODIES, ";
+  cout << "SIMULATING " << n << " BODIES, ";
   cout << steps << " STEPS, " << dt << " DT\n";
   cerr << "Simulating " << n << " bodies for " << steps << " steps, using dt = " << dt << '\n';
+  clock_t t = clock();
   for (int i=1;i<=steps;i++){
     // For each step
     step(bodies,n,dt);
@@ -109,6 +129,10 @@ void simulate(body* bodies,int n, int steps,double dt, bool verbose) {
     if (verbose) {
       cerr << "Step " << i << ", Time " << i*dt << '\n';
       printBodies(bodies,n);
+    }
+    if (double(clock()-t)/CLOCKS_PER_SEC > 5.0) { // Every 5 seconds
+      cerr << "On Step " << i << '/' << steps << '\n';
+      t = clock();
     }
   }
 }
@@ -139,13 +163,7 @@ int main(int argc, char *argv[])
   }
   if (i != n) return inputCorrupt();
   
-  printBodies(bods,n);
-  
   if (argc >= 3) {
-    int steps = atoi(argv[1]);
-    double dt = atof(argv[2]);
-    cerr << "Steps to iterate: " << steps << ", dt: " << dt << '\n';
-    cerr << "SIMULATION BEGIN\n";
     bool verbose = false;
     if (argc == 4) { 
       switch (atoi(argv[3])) {
@@ -159,9 +177,17 @@ int main(int argc, char *argv[])
           cout << "WARNING: VERBOSE argument " << argv[3] << " not understood (should be 1 or 0)";
       }
     }
+    int steps = atoi(argv[1]);
+    double dt = atof(argv[2]);
+    cerr << "Steps to iterate: " << steps << ", dt: " << dt << '\n';
+    if (verbose) printBodies(bods,n);
+    clock_t t1 = clock();
+    cerr << "SIMULATION BEGIN\n";
     simulate(bods,n,steps,dt,verbose);
     cerr << "SIMULATION END\n";
-    printBodies(bods,n);
+    clock_t t2 = clock();
+    cerr << "Simulation completed in " << double(t2-t1)/CLOCKS_PER_SEC << " seconds.\n";
+    if (verbose) printBodies(bods,n);
   } else {
     cerr << "You can pass in an integer and a double "
                 "number of steps and dt";

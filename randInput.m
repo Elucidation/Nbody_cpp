@@ -1,9 +1,9 @@
 
-filename = 'testInput1.in'
+filename = 'testInput2.in'
 N = 100; % Number of bodies
 
-POS_MAX = 10; % +- max value, centered about zero
-VEL_MAX = 0.5; % +- max value, centered about zero
+POS_MAX = 1; % +- max value, centered about zero
+VEL_MAX = 0; % +- max value, centered about zero
 
 p = (rand(N,3)-0.5) * POS_MAX;
 v = (rand(N,3)-0.5) * VEL_MAX;

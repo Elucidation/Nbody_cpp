@@ -2,7 +2,8 @@ clear all; close all; clc;
 MODE_REALTIME = 1;
 MODE_PLOT = 2;
 
-MODE = MODE_PLOT;
+%MODE = MODE_PLOT;
+MODE = MODE_REALTIME;
 
 
 filename = 'testOutput.out';
@@ -13,7 +14,7 @@ f = fopen(filename,'r');
 head = fgetl(f);
 
 disp(head);
-headdata = sscanf(head,'SIMULATION %d BODIES, %d STEPS, %g DT');
+headdata = sscanf(head,'SIMULATING %d BODIES, %d STEPS, %g DT');
 n = headdata(1);
 steps = headdata(2);
 dt = headdata(3);
@@ -44,6 +45,7 @@ elseif (MODE == MODE_REALTIME)
         title(sprintf('%i bodies, %i steps, %g dt, Time: %g/%g',n,steps,dt,t*dt,dt*steps));
         %hold off;
         %axis([-2 2 -2 2]);
-        pause(0.0001);
+        %axis([-1 1 -1 1]*1e2);
+        pause(0.001);
     end
 end
