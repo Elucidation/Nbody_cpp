@@ -6,7 +6,8 @@ MODE_PLOT = 2;
 MODE = MODE_REALTIME;
 
 
-filename = 'testOutput.out';
+%filename = 'testOutput.out';
+filename = input('Enter filename: ','s');
 fprintf('Reading file %s...\n',filename);
 
 f = fopen(filename,'r');
@@ -23,6 +24,9 @@ dt = headdata(3);
 % x y z vx vy vz columns
 data = fscanf(f,'%f %f %f %f %f %f', [6 inf])';
 fclose(f);
+
+plotSlice = @(t,data) plot(data((t-1)*n+1:t*n,1),data((t-1)*n+1:t*n,2),'.k');
+
 
 % GRAPHICS
 colors = 'kbgry';
@@ -46,6 +50,7 @@ elseif (MODE == MODE_REALTIME)
         %hold off;
         %axis([-2 2 -2 2]);
         %axis([-1 1 -1 1]*1e2);
+        axis equal;
         pause(0.001);
     end
 end

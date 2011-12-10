@@ -120,6 +120,7 @@ void simulate(body* bodies,int n, int steps,double dt, bool verbose) {
   cout << "SIMULATING " << n << " BODIES, ";
   cout << steps << " STEPS, " << dt << " DT\n";
   cerr << "Simulating " << n << " bodies for " << steps << " steps, using dt = " << dt << '\n';
+  clock_t tStart = clock();
   clock_t t = clock();
   for (int i=1;i<=steps;i++){
     // For each step
@@ -131,7 +132,7 @@ void simulate(body* bodies,int n, int steps,double dt, bool verbose) {
       printBodies(bodies,n);
     }
     if (double(clock()-t)/CLOCKS_PER_SEC > 5.0) { // Every 5 seconds
-      cerr << "On Step " << i << '/' << steps << '\n';
+      cerr << "On Step " << i << '/' << steps << " - Time Spent: " << double(clock()-tStart)/CLOCKS_PER_SEC << '\n';
       t = clock();
     }
   }

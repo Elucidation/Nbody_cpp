@@ -1,6 +1,6 @@
 
-filename = 'testInput2.in'
-N = 100; % Number of bodies
+filename = 'inp1k.in'
+N = 1000; % Number of bodies
 
 POS_MAX = 1; % +- max value, centered about zero
 VEL_MAX = 0; % +- max value, centered about zero
