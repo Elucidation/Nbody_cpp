@@ -163,6 +163,7 @@ int main(int argc, char *argv[])
     i++;
   }
   if (i != n) return inputCorrupt();
+  cerr << "\nDone reading file.";
   
   if (argc >= 3) {
     bool verbose = false;
@@ -198,6 +199,5 @@ int main(int argc, char *argv[])
   delete [] bods; 
   bods = NULL;
   
-  cerr << "\nDone reading file.";
   return 0;
 }
