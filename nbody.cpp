@@ -95,24 +95,32 @@ void step(body* bodies,int n, double dt) {
     //~ // vel = vel + acceleration*dt // After position update so vel doesn't change first
     //~ ADDVECMULT(bodies[i].vel,bodies[i].vel, a, dt);
   //~ }
-  double dx,dy,r,f,fx,fy;
+  double dx,dy,dz,r,f,fx,fy,fz;
   for (int i=0; i < n; i++) {
     for (int j=i+1; j<n;j++) {
       dx = bodies[j].pos.x - bodies[i].pos.x;
       dy = bodies[j].pos.y - bodies[i].pos.y;
-      r = sqrt(dx*dx+dy*dy) + ETA;
+      dz = bodies[j].pos.z - bodies[i].pos.z;
+      r = sqrt(dx*dx+dy*dy+dz*dz) + ETA;
+      
       f = double(G*1*1)/(r*r);
       fx = dx / r * f;
       fy = dy / r * f;
+      fz = dz / r * f;
+      
       bodies[i].vel.x += fx*dt;
       bodies[i].vel.y += fy*dt;
+      bodies[i].vel.z += fz*dt;
+      
       bodies[j].vel.x -= fx*dt;
       bodies[j].vel.y -= fy*dt;
+      bodies[j].vel.z -= fz*dt;
     }
   }
   for (int i=0; i < n; i++) {
     bodies[i].pos.x += bodies[i].vel.x*dt;
     bodies[i].pos.y += bodies[i].vel.y*dt;
+    bodies[i].pos.z += bodies[i].vel.z*dt;
   }
 }
 
@@ -132,7 +140,8 @@ void simulate(body* bodies,int n, int steps,double dt, bool verbose) {
       printBodies(bodies,n);
     }
     if (double(clock()-t)/CLOCKS_PER_SEC > 5.0) { // Every 5 seconds
-      cerr << "On Step " << i << '/' << steps << " - Time Spent: " << double(clock()-tStart)/CLOCKS_PER_SEC << '\n';
+      cerr << "On Step " << i << '/' << steps << " - Time Spent: " << double(clock()-tStart)/CLOCKS_PER_SEC;
+      cerr << "s, Time left: ~" << int( (double(clock()-tStart)/CLOCKS_PER_SEC)/(double(i)/steps) - (double(clock()-tStart)/CLOCKS_PER_SEC) ) << "s \n";
       t = clock();
     }
   }
