@@ -13,6 +13,7 @@ using namespace std;
 
 #define G 1.0
 #define ETA 0.1 // Ignore distances less than this
+#define SKIPFRAME 1 // Only output every nth step
 
 struct v3 {
   double x,y,z;
@@ -46,11 +47,14 @@ void printBodies(body* bodies,int n)
 }
 
 void outputBodies(body* bodies,int n) {
+  cout.precision(15);
+  cout << scientific;
   for (int i=0;i<n;i++) {
     cout << bodies[i].pos.x << ' ' << bodies[i].pos.y << ' ';
     cout << bodies[i].pos.z << ' ' << bodies[i].vel.x << ' ';
     cout << bodies[i].vel.y << ' ' << bodies[i].vel.z << '\n';
   }
+  cout.unsetf(ios::floatfield);
 }
 
 int inputCorrupt()
@@ -95,7 +99,45 @@ void step(body* bodies,int n, double dt) {
     //~ // vel = vel + acceleration*dt // After position update so vel doesn't change first
     //~ ADDVECMULT(bodies[i].vel,bodies[i].vel, a, dt);
   //~ }
+    
+  // EULER integration
+//   double dx,dy,dz,r,f,fx,fy,fz;
+//   for (int i=0; i < n; i++) {
+//     for (int j=i+1; j<n;j++) {
+//       dx = bodies[j].pos.x - bodies[i].pos.x;
+//       dy = bodies[j].pos.y - bodies[i].pos.y;
+//       dz = bodies[j].pos.z - bodies[i].pos.z;
+//       r = sqrt(dx*dx+dy*dy+dz*dz) + ETA;
+//       
+//       f = double(G*1*1)/(r*r);
+//       fx = dx / r * f;
+//       fy = dy / r * f;
+//       fz = dz / r * f;
+//       
+//       bodies[i].vel.x += fx*dt;
+//       bodies[i].vel.y += fy*dt;
+//       bodies[i].vel.z += fz*dt;
+//       
+//       bodies[j].vel.x -= fx*dt;
+//       bodies[j].vel.y -= fy*dt;
+//       bodies[j].vel.z -= fz*dt;
+//     }
+//   }
+//   // Step positions
+//   for (int i=0; i < n; i++) {
+//     bodies[i].pos.x += bodies[i].vel.x*dt;
+//     bodies[i].pos.y += bodies[i].vel.y*dt;
+//     bodies[i].pos.z += bodies[i].vel.z*dt;
+//   }
+  
+  // LEAPFROG 
   double dx,dy,dz,r,f,fx,fy,fz;
+  // half-step positions
+  for (int i=0; i < n; i++) {
+    bodies[i].pos.x += 0.5*bodies[i].vel.x*dt;
+    bodies[i].pos.y += 0.5*bodies[i].vel.y*dt;
+    bodies[i].pos.z += 0.5*bodies[i].vel.z*dt;
+  }
   for (int i=0; i < n; i++) {
     for (int j=i+1; j<n;j++) {
       dx = bodies[j].pos.x - bodies[i].pos.x;
@@ -117,10 +159,11 @@ void step(body* bodies,int n, double dt) {
       bodies[j].vel.z -= fz*dt;
     }
   }
+  // half-step positions
   for (int i=0; i < n; i++) {
-    bodies[i].pos.x += bodies[i].vel.x*dt;
-    bodies[i].pos.y += bodies[i].vel.y*dt;
-    bodies[i].pos.z += bodies[i].vel.z*dt;
+    bodies[i].pos.x += 0.5*bodies[i].vel.x*dt;
+    bodies[i].pos.y += 0.5*bodies[i].vel.y*dt;
+    bodies[i].pos.z += 0.5*bodies[i].vel.z*dt;
   }
 }
 
@@ -133,7 +176,9 @@ void simulate(body* bodies,int n, int steps,double dt, bool verbose) {
   for (int i=1;i<=steps;i++){
     // For each step
     step(bodies,n,dt);
-    outputBodies(bodies,n);
+    if ((i-1) % SKIPFRAME == 0) {
+        outputBodies(bodies,n);
+    }
     
     if (verbose) {
       cerr << "Step " << i << ", Time " << i*dt << '\n';

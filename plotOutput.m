@@ -7,8 +7,9 @@ CHUNK_DEFAULT = 5; % Default chunk length, 1 means every step
 %MODE = MODE_PLOT; % Doesn't work well with large files...
 MODE = MODE_REALTIME;
 
-DIMS = 3; % or 3
-
+DIMS = 3; % 2 or 3
+SPEED = 1; % skip to every SPEED'th frame
+LINETYPE = '.-';
 
 %%%%%%%%%%%%%%%%%%
 
@@ -44,7 +45,7 @@ end
 plotSlice = @(t,data) plot(data((t-1)*n+1:t*n,1),data((t-1)*n+1:t*n,2),'.k');
 plotSlice3 = @(t,data) plot3(data((t-1)*n+1:t*n,1),data((t-1)*n+1:t*n,2),data((t-1)*n+1:t*n,3),'.k');
 
-% GRAPHICS
+%% GRAPHICS
 colors = 'kbgry';
 getColor = @(x) colors(mod(x,length(colors))+1);
 figure;
@@ -61,6 +62,7 @@ while 1
     end
     fprintf('Reading Chunks %g to %g\n',chunk_count,chunk_count+CHUNK_LENGTH);
     if (MODE == MODE_PLOT)
+        % Starter Green circle
         if DIMS == 2
             plot(data(1:n,1),data(1:n,2), 'og'  );
         elseif DIMS == 3
@@ -69,15 +71,15 @@ while 1
         hold on;    
         for i = 1:n
             if DIMS == 2
-                plot(data(i:n:end,1),data(i:n:end,2),  sprintf('.-%c',getColor(i))  );
+                plot(data(i:n*SPEED:end,1),data(i:n*SPEED:end,2),  sprintf('%c%c',LINETYPE,getColor(i))  );
             elseif DIMS == 3
-                plot3(data(i:n:end,1),data(i:n:end,2),data(i:n:end,3),  sprintf('.-%c',getColor(i))  );
+                plot3(data(i:n*SPEED:end,1),data(i:n*SPEED:end,2),data(i:n*SPEED:end,3),  sprintf('%c%c',LINETYPE,getColor(i))  );
             end
             
         end
         hold off;
     elseif (MODE == MODE_REALTIME)
-        for t = 1:(size(data,1)/n)
+        for t = 1:SPEED:(size(data,1)/n)
             if DIMS == 2
                 plot(data((t-1)*n+1:t*n,1),data((t-1)*n+1:t*n,2),'.k');
             elseif DIMS == 3
