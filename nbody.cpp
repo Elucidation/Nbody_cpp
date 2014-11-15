@@ -3,56 +3,32 @@
 #include <math.h>
 #include <ctime>
 using namespace std;
-#define SETVEC(a,xx,yy,zz) a.x = xx; a.y = yy; a.z = zz
-#define ADDVEC(c,a,b) c.x = a.x + b.x; c.y = a.y + b.y; c.z = a.z + b.z
-#define SUBVEC(c,a,b) c.x = a.x - b.x; c.y = a.y - b.y; c.z = a.z - b.z
-#define ADDVECMULT(c,a,b,s) c.x = a.x + b.x*(s); c.y = a.y + b.y*(s); c.z = a.z + b.z*(s)
-#define MAGN2(a) (a.x*a.x+a.y*a.y+a.z*a.z)
-#define MAGN(a) sqrt(MAGN2(a))
-#define MULTVECSCALAR(c,a,s) c.x = a.x*(s); c.y = a.y*(s); c.z = a.z*(s)
 
 #define G 1.0
 #define ETA 0.1 // Ignore distances less than this
 #define SKIPFRAME 1 // Only output every nth step
 
-struct v3 {
-  double x,y,z;
-};
+#define NDIM 3 // Number of dimensions (currently hardcoded to 3)
 
-struct body {
-  v3 pos,vel;
-};
-
-void printv3(v3 vec)
-{
-  cerr << "(" << vec.x << "," << vec.y << "," << vec.z << ")";
-}
-
-
-void printBody (body b)
-{
-  cerr << "body < P";
-  printv3(b.pos);
-  cerr << " V";
-  printv3(b.vel);
-  cerr << " >\n";
-}
-
-void printBodies(body* bodies,int n)
+void print_state(double pos[][NDIM], double vel[][NDIM],int n)
 {
   for (int i=0;i<n;i++) {
     cerr << i << ' ';
-    printBody(bodies[i]);
+    cerr << "body < P";
+    cerr << "(" << pos[i][0] << "," << pos[i][1] << "," << pos[i][2] << ")";
+    cerr << " V";
+    cerr << "(" << vel[i][0] << "," << vel[i][1] << "," << vel[i][2] << ")";
+    cerr << " >\n";
   }
 }
 
-void outputBodies(body* bodies,int n) {
+void outputBodies(double pos[][NDIM], double vel[][NDIM],int n) {
   cout.precision(15);
   cout << scientific;
   for (int i=0;i<n;i++) {
-    cout << bodies[i].pos.x << ' ' << bodies[i].pos.y << ' ';
-    cout << bodies[i].pos.z << ' ' << bodies[i].vel.x << ' ';
-    cout << bodies[i].vel.y << ' ' << bodies[i].vel.z << '\n';
+    cout << pos[i][0] << ' ' << pos[i][1] << ' ';
+    cout << pos[i][2] << ' ' << vel[i][0] << ' ';
+    cout << vel[i][1] << ' ' << vel[i][2] << '\n';
   }
   cout.unsetf(ios::floatfield);
 }
@@ -63,86 +39,20 @@ int inputCorrupt()
   return -1;
 }
 
-v3 getForces(int index, body* bodies, int n) {
-  v3 a = {0,0,0}; // Initialize to zeros
-  for (int i=0; i < n; i++) {
-    if (i == index) continue; // Skip same one
-    // For each body
-    // Get direction vector between two bodies ^d
-    v3 d;
-    SUBVEC(d,bodies[i].pos,bodies[index].pos); // d = bodies[i].pos - b.pos
-    
-    // Get distance magnitude r
-    double r2 = MAGN2(d) + ETA*ETA; // ETA softening here.
-    double r = sqrt(r2); 
-    //if (r < ETA) continue; // Skip acceleration if distance is less than ETA
-    MULTVECSCALAR(d,d,1.0/r);
-    
-    // ^a = ^d/r * G * m * m / (r*r);
-    // accels = accels + ^a
-    ADDVECMULT(a,a, d, G*1*1 / (r2*r) ) ;
-    
-  }
-  return a;
-}
-
-void step(body* bodies,int n, double dt) {
-  //~ for (int i=0; i < n; i++) {
-    //~ // For each body
-    
-    //~ // Calculate accelerations on body from other bodies
-    //~ v3 a = getForces(i,bodies,n);
-    
-    //~ // pos = pos + vel*dt
-    //~ ADDVECMULT(bodies[i].pos,bodies[i].pos, bodies[i].vel,dt);
-    
-    //~ // vel = vel + acceleration*dt // After position update so vel doesn't change first
-    //~ ADDVECMULT(bodies[i].vel,bodies[i].vel, a, dt);
-  //~ }
-    
-  // EULER integration
-//   double dx,dy,dz,r,f,fx,fy,fz;
-//   for (int i=0; i < n; i++) {
-//     for (int j=i+1; j<n;j++) {
-//       dx = bodies[j].pos.x - bodies[i].pos.x;
-//       dy = bodies[j].pos.y - bodies[i].pos.y;
-//       dz = bodies[j].pos.z - bodies[i].pos.z;
-//       r = sqrt(dx*dx+dy*dy+dz*dz) + ETA;
-//       
-//       f = double(G*1*1)/(r*r);
-//       fx = dx / r * f;
-//       fy = dy / r * f;
-//       fz = dz / r * f;
-//       
-//       bodies[i].vel.x += fx*dt;
-//       bodies[i].vel.y += fy*dt;
-//       bodies[i].vel.z += fz*dt;
-//       
-//       bodies[j].vel.x -= fx*dt;
-//       bodies[j].vel.y -= fy*dt;
-//       bodies[j].vel.z -= fz*dt;
-//     }
-//   }
-//   // Step positions
-//   for (int i=0; i < n; i++) {
-//     bodies[i].pos.x += bodies[i].vel.x*dt;
-//     bodies[i].pos.y += bodies[i].vel.y*dt;
-//     bodies[i].pos.z += bodies[i].vel.z*dt;
-//   }
-  
+void evolve(double pos[][NDIM], double vel[][NDIM],int n, double dt) {  
   // LEAPFROG 
   double dx,dy,dz,r,f,fx,fy,fz;
   // half-step positions
   for (int i=0; i < n; i++) {
-    bodies[i].pos.x += 0.5*bodies[i].vel.x*dt;
-    bodies[i].pos.y += 0.5*bodies[i].vel.y*dt;
-    bodies[i].pos.z += 0.5*bodies[i].vel.z*dt;
+    pos[i][0] += 0.5*vel[i][0]*dt;
+    pos[i][1] += 0.5*vel[i][1]*dt;
+    pos[i][2] += 0.5*vel[i][2]*dt;
   }
   for (int i=0; i < n; i++) {
     for (int j=i+1; j<n;j++) {
-      dx = bodies[j].pos.x - bodies[i].pos.x;
-      dy = bodies[j].pos.y - bodies[i].pos.y;
-      dz = bodies[j].pos.z - bodies[i].pos.z;
+      dx = pos[j][0] - pos[i][0];
+      dy = pos[j][1] - pos[i][1];
+      dz = pos[j][2] - pos[i][2];
       r = sqrt(dx*dx+dy*dy+dz*dz) + ETA;
       
       f = double(G*1*1)/(r*r);
@@ -150,24 +60,24 @@ void step(body* bodies,int n, double dt) {
       fy = dy / r * f;
       fz = dz / r * f;
       
-      bodies[i].vel.x += fx*dt;
-      bodies[i].vel.y += fy*dt;
-      bodies[i].vel.z += fz*dt;
+      vel[i][0] += fx*dt;
+      vel[i][1] += fy*dt;
+      vel[i][2] += fz*dt;
       
-      bodies[j].vel.x -= fx*dt;
-      bodies[j].vel.y -= fy*dt;
-      bodies[j].vel.z -= fz*dt;
+      vel[j][0] -= fx*dt;
+      vel[j][1] -= fy*dt;
+      vel[j][2] -= fz*dt;
     }
   }
   // half-step positions
   for (int i=0; i < n; i++) {
-    bodies[i].pos.x += 0.5*bodies[i].vel.x*dt;
-    bodies[i].pos.y += 0.5*bodies[i].vel.y*dt;
-    bodies[i].pos.z += 0.5*bodies[i].vel.z*dt;
+    pos[i][0] += 0.5*vel[i][0]*dt;
+    pos[i][1] += 0.5*vel[i][1]*dt;
+    pos[i][2] += 0.5*vel[i][2]*dt;
   }
 }
 
-void simulate(body* bodies,int n, int steps,double dt, bool verbose) {
+void simulate(double pos[][NDIM], double vel[][NDIM],int n, int steps,double dt, bool verbose) {
   cout << "SIMULATING " << n << " BODIES, ";
   cout << steps << " STEPS, " << dt << " DT\n";
   cerr << "Simulating " << n << " bodies for " << steps << " steps, using dt = " << dt << '\n';
@@ -175,14 +85,14 @@ void simulate(body* bodies,int n, int steps,double dt, bool verbose) {
   clock_t t = clock();
   for (int i=1;i<=steps;i++){
     // For each step
-    step(bodies,n,dt);
+    evolve(pos, vel, n,dt);
     if ((i-1) % SKIPFRAME == 0) {
-        outputBodies(bodies,n);
+        outputBodies(pos, vel, n);
     }
     
     if (verbose) {
       cerr << "Step " << i << ", Time " << i*dt << '\n';
-      printBodies(bodies,n);
+      print_state(pos, vel, n);
     }
     if (double(clock()-t)/CLOCKS_PER_SEC > 5.0) { // Every 5 seconds
       cerr << "On Step " << i << '/' << steps << " - Time Spent: " << double(clock()-tStart)/CLOCKS_PER_SEC;
@@ -194,26 +104,28 @@ void simulate(body* bodies,int n, int steps,double dt, bool verbose) {
 
 int main(int argc, char *argv[])
 {
-  int i; // iterator
-  float k;
   int n; // Number of bodies, passed in as first digit in input
-  body* bods = NULL; // Contains all the nbodies
   
   cerr << "Reading input...\n";
   cin >> n;
   cerr << "Generating " << n << " bodies...\n";
-  bods = new body[n];
+
+  // Arrays of variables on all n bodies
+  // double * mass[n]= new double[n];
+  double (* pos)[NDIM]= new double[n][NDIM];
+  double (* vel)[NDIM]= new double[n][NDIM];
   
-  i = 0;
+  int i = 0; // iterator over n bodies while reading from file
+  float k;
   while (cin >> k)
   {
     if (i > n-1) return inputCorrupt();
-    bods[i].pos.x = k;
-    cin >> bods[i].pos.y;
-    cin >> bods[i].pos.z;
-    cin >> bods[i].vel.x;
-    cin >> bods[i].vel.y;
-    cin >> bods[i].vel.z;
+    pos[i][0] = k;
+    cin >> pos[i][1];
+    cin >> pos[i][2];
+    cin >> vel[i][0];
+    cin >> vel[i][1];
+    cin >> vel[i][2];
     i++;
   }
   if (i != n) return inputCorrupt();
@@ -236,22 +148,23 @@ int main(int argc, char *argv[])
     int steps = atoi(argv[1]);
     double dt = atof(argv[2]);
     cerr << "Steps to iterate: " << steps << ", dt: " << dt << '\n';
-    if (verbose) printBodies(bods,n);
+    if (verbose) print_state(pos, vel, n);
     clock_t t1 = clock();
     cerr << "SIMULATION BEGIN\n";
-    simulate(bods,n,steps,dt,verbose);
+    simulate(pos, vel, n, steps, dt, verbose);
     cerr << "SIMULATION END\n";
     clock_t t2 = clock();
     cerr << "Simulation completed in " << double(t2-t1)/CLOCKS_PER_SEC << " seconds.\n";
-    if (verbose) printBodies(bods,n);
+    if (verbose) print_state(pos, vel, n);
   } else {
     cerr << "You can pass in an integer and a double "
                 "number of steps and dt";
   }
   
   // free memory used for bodies
-  delete [] bods; 
-  bods = NULL;
+  // delete [] mass; 
+  delete [] pos; 
+  delete [] vel; 
   
   return 0;
 }
