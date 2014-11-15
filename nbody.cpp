@@ -41,7 +41,7 @@ int inputCorrupt()
 
 void evolve(double pos[][NDIM], double vel[][NDIM],int n, double dt) {  
   // LEAPFROG 
-  double dx,dy,dz,r,f,fx,fy,fz;
+  double dx,dy,dz,r,r2,r3,f,fx,fy,fz;
   // half-step positions
   for (int i=0; i < n; i++) {
     pos[i][0] += 0.5*vel[i][0]*dt;
@@ -53,20 +53,22 @@ void evolve(double pos[][NDIM], double vel[][NDIM],int n, double dt) {
       dx = pos[j][0] - pos[i][0];
       dy = pos[j][1] - pos[i][1];
       dz = pos[j][2] - pos[i][2];
-      r = sqrt(dx*dx+dy*dy+dz*dz) + ETA;
+      r2 = dx*dx+dy*dy+dz*dz;
+      r = sqrt(r2);
+      r3 = r*r2;
       
-      f = double(G*1*1)/(r*r);
-      fx = dx / r * f;
-      fy = dy / r * f;
-      fz = dz / r * f;
+      f = double(G*1*1)/(r3 + ETA) * dt;
+      fx = dx * f;
+      fy = dy * f;
+      fz = dz * f;
       
-      vel[i][0] += fx*dt;
-      vel[i][1] += fy*dt;
-      vel[i][2] += fz*dt;
+      vel[i][0] += fx;
+      vel[i][1] += fy;
+      vel[i][2] += fz;
       
-      vel[j][0] -= fx*dt;
-      vel[j][1] -= fy*dt;
-      vel[j][2] -= fz*dt;
+      vel[j][0] -= fx;
+      vel[j][1] -= fy;
+      vel[j][2] -= fz;
     }
   }
   // half-step positions

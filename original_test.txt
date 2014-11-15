@@ -36,10 +36,7 @@ On Step 995/1000 - Time Spent: 90.766s, Time left: ~0s
 SIMULATION END
 Simulation completed in 91.234 seconds.
 
-C:\Users\Sam\Documents\GitHub\Nbody_cpp>
-
-
-vs faster
+vs faster A
 -------------------------
 
 C:\Users\Sam\Documents\GitHub\Nbody_cpp>nbody.exe 1000 0.01 < InputFiles\i1000.in > testOutput2.out
@@ -64,6 +61,28 @@ On Step 843/1000 - Time Spent: 60.398s, Time left: ~11s
 On Step 913/1000 - Time Spent: 65.423s, Time left: ~6s
 On Step 983/1000 - Time Spent: 70.468s, Time left: ~1s
 SIMULATION END
-Simulation completed in 71.691 seconds.
+Simulation completed in 71.691 seconds. ~27% faster than previous
 
-C:\Users\Sam\Documents\GitHub\Nbody_cpp>
+vs faster B
+------------------------
+C:\Users\Sam\Documents\GitHub\Nbody_cpp>nbody.exe 1000 0.01 < InputFiles\i1000.in > testOutput2.out
+Reading input...
+Generating 1000 bodies...
+
+Done reading file.Steps to iterate: 1000, dt: 0.01
+SIMULATION BEGIN
+Simulating 1000 bodies for 1000 steps, using dt = 0.01
+On Step 81/1000 - Time Spent: 5.056s, Time left: ~57s
+On Step 162/1000 - Time Spent: 10.112s, Time left: ~52s
+On Step 243/1000 - Time Spent: 15.172s, Time left: ~47s
+On Step 324/1000 - Time Spent: 20.216s, Time left: ~42s
+On Step 405/1000 - Time Spent: 25.252s, Time left: ~37s
+On Step 486/1000 - Time Spent: 30.281s, Time left: ~32s
+On Step 567/1000 - Time Spent: 35.322s, Time left: ~26s
+On Step 648/1000 - Time Spent: 40.376s, Time left: ~21s
+On Step 727/1000 - Time Spent: 45.384s, Time left: ~17s
+On Step 805/1000 - Time Spent: 50.438s, Time left: ~12s
+On Step 885/1000 - Time Spent: 55.492s, Time left: ~7s
+On Step 966/1000 - Time Spent: 60.544s, Time left: ~2s
+SIMULATION END
+Simulation completed in 62.674 seconds. ~14% faster than previous (45% than first)
