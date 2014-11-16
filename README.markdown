@@ -3,6 +3,8 @@ Comparison of nbody vs nbody_openmpi which uses open-mpi to run force calculatio
 
 ![10k bodies](http://i.imgur.com/qyjwC8u.gif)
 
+Using 2-3 processes gets a ~2x speedup over non-parallelized versions, for example, for 10k particles over 1000 steps, the original version takes about 50 minutes, versus the 21 minutes of the open-mpi version.
+
 Speed comparison
 ---
 
