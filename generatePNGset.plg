@@ -9,7 +9,7 @@
 #  convert -delay fps -loop 0 *.png filename.gif
 # ex. convert -delay 10 -loop 0 *.png RunA_10k.gif
 
-set term png;
+set term png size 1000,1000;
 set nokey
 set autoscale
 
