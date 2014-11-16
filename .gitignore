@@ -3,5 +3,7 @@
 *.out
 nbody
 nbody.o
+nbody_openmpi
+nbody_openmpi.o
 *.asv
 Thumbs.db

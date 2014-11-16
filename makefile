@@ -6,5 +6,8 @@ nbody: nbody.o
 nbody.o: nbody.cpp
 	g++ $(CFLAGS) -c nbody.cpp
 
+nbody_openmpi: nbody_openmpi.cpp
+	mpiCC $(CFLAGS) nbody_openmpi.cpp -o nbody_openmpi
+
 clean:
-	rm -rf nbody.exe nbody.o # * has issues with windows path with spaces
+	rm -rf *.o nbody nbody_openmpi
