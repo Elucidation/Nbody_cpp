@@ -1,4 +1,6 @@
 *.exe
 *.out
+nbody
+nbody.o
 *.asv
 Thumbs.db
