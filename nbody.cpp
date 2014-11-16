@@ -39,24 +39,24 @@ int inputCorrupt()
   return -1;
 }
 
-void evolve(double pos[][NDIM], double vel[][NDIM], double forces[][NDIM], int n, double dt) {  
-  // LEAPFROG 
-  double dx,dy,dz,r,r2,r3,f,fx,fy,fz;
-  // half-step positions
+void zeroVec(double a[][NDIM], int n)
+{
   for (int i=0; i < n; i++) {
-    pos[i][0] += 0.5*vel[i][0]*dt;
-    pos[i][1] += 0.5*vel[i][1]*dt;
-    pos[i][2] += 0.5*vel[i][2]*dt;
+    a[i][0] = 0;
+    a[i][1] = 0;
+    a[i][2] = 0;
   }
+}
+
+// updates forces array for each body based on current position
+void calculateForces(double forces[][NDIM], double pos[][NDIM], int n)
+{
+  double dx,dy,dz,r,r2,r3,f,fx,fy,fz;
 
   // Initialize forces to zero
-  for (int i=0; i < n; i++) {
-    forces[i][0] = 0;
-    forces[i][1] = 0;
-    forces[i][2] = 0;
-  }
+  zeroVec(forces,n);
 
-  // Calculate forces applied to each body
+  // Aggregate all forces for each body
   for (int i=0; i < n; i++) {
     for (int j=i+1; j<n;j++) {
       dx = pos[j][0] - pos[i][0];
@@ -80,20 +80,34 @@ void evolve(double pos[][NDIM], double vel[][NDIM], double forces[][NDIM], int n
       forces[j][2] -= fz;
     }
   }
+}
 
-  // Apply forces to velocity
+void stepVec(double a[][NDIM], double b[][NDIM], int n, double dt)
+{
   for (int i=0; i < n; i++) {
-    vel[i][0] += forces[i][0] * dt;
-    vel[i][1] += forces[i][1] * dt;
-    vel[i][2] += forces[i][2] * dt;
+    a[i][0] += b[i][0]*dt;
+    a[i][1] += b[i][1]*dt;
+    a[i][2] += b[i][2]*dt;
   }
+}
 
-  // half-step positions
-  for (int i=0; i < n; i++) {
-    pos[i][0] += 0.5*vel[i][0]*dt;
-    pos[i][1] += 0.5*vel[i][1]*dt;
-    pos[i][2] += 0.5*vel[i][2]*dt;
-  }
+void evolve(double pos[][NDIM], double vel[][NDIM], double forces[][NDIM], int n, double dt) {  
+  // LEAPFROG (half step position, full step vel, half step pos)
+  
+  // Half-step positions
+  // pos += vel * dt/2
+  stepVec(pos, vel, n, 0.5*dt);
+
+  // Calculate forces applied to each body
+  calculateForces(forces, pos, n);
+
+  // Full-step velocity
+  // vel += forces * dt
+  stepVec(vel, forces, n, dt);
+
+  // Half-step positions
+  // pos += vel * dt/2
+  stepVec(pos, vel, n, 0.5*dt);
 }
 
 void simulate(double pos[][NDIM], double vel[][NDIM], int n, int steps,double dt, bool verbose) {
