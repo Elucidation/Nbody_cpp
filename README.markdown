@@ -2,8 +2,8 @@ Basic nbody graviational simulation program in c++
 Comparison of nbody vs nbody_openmpi which uses open-mpi to run force calculations in parallel
 
 ![10k bodies pic](http://i.imgur.com/Ocvs1ng.png)
-![10k bodies](http://i.imgur.com/0JFPQqM.gifv)
-![1k bodies](http://i.imgur.com/TTmS4t2.gifv)
+![10k bodies](http://i.imgur.com/0JFPQqM.gif)
+![1k bodies](http://i.imgur.com/TTmS4t2.gif)
 
 
 Speed comparison
