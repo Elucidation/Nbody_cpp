@@ -166,6 +166,10 @@ int main(int argc, char *argv[])
         cout << "WARNING: VERBOSE argument " << argv[3] << " not understood (should be 1 or 0)";
     }
   }
+
+  int steps = atoi(argv[1]);
+  double dt = atof(argv[2]);
+  cerr << "Steps to iterate: " << steps << ", dt: " << dt << '\n';
   
   cerr << "Reading input...\n";
   cin >> n;
@@ -193,10 +197,6 @@ int main(int argc, char *argv[])
   if (i != n) return inputCorrupt();
   cerr << "\nDone reading file.";
   
-
-  int steps = atoi(argv[1]);
-  double dt = atof(argv[2]);
-  cerr << "Steps to iterate: " << steps << ", dt: " << dt << '\n';
   if (verbose) print_state(pos, vel, n);
   clock_t t1 = clock();
   cerr << "SIMULATION BEGIN\n";
