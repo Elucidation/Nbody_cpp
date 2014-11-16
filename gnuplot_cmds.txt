@@ -1,0 +1,14 @@
+# Gnuplot command to visualize (skip every 10 steps)
+set term png;
+set nokey
+set autoscale
+
+num_bodies = 10000
+steps = 100
+
+do for [i = 0:steps-1:1] {
+	print sprintf("On #%d/%d",i,steps);
+	filename = sprintf('RunA_10k/Run1_10k_frame_%04d.png', i);
+	set output filename;
+	splot sprintf('out%d.out',num_bodies) using 1:2:3 every ::2+(i*num_bodies)::2+((i+1)*num_bodies) with points ls '0';
+}
