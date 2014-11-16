@@ -144,6 +144,28 @@ void simulate(double pos[][NDIM], double vel[][NDIM], int n, int steps,double dt
 int main(int argc, char *argv[])
 {
   int n; // Number of bodies, passed in as first digit in input
+  bool verbose = false;
+
+  if (argc < 3)
+  {
+    cerr << "Need to pass in number of steps and dt" << endl 
+         << "  'nbody <steps> <dt> [verbose] < input_file > output_file'" << endl
+         << "  ex. ./nbody 1000 0.1 < InputFiles/i1000.in > outA1000.out" << endl;
+         return -1;
+  }
+
+  if (argc == 4) { 
+    switch (atoi(argv[3])) {
+      case 1: // true         
+        verbose = true; 
+        break;
+      case 0: // false
+        verbose = false;
+        break;
+      default:
+        cout << "WARNING: VERBOSE argument " << argv[3] << " not understood (should be 1 or 0)";
+    }
+  }
   
   cerr << "Reading input...\n";
   cin >> n;
@@ -162,6 +184,7 @@ int main(int argc, char *argv[])
     pos[i][0] = k;
     cin >> pos[i][1];
     cin >> pos[i][2];
+
     cin >> vel[i][0];
     cin >> vel[i][1];
     cin >> vel[i][2];
@@ -170,36 +193,19 @@ int main(int argc, char *argv[])
   if (i != n) return inputCorrupt();
   cerr << "\nDone reading file.";
   
-  if (argc >= 3) {
-    bool verbose = false;
-    if (argc == 4) { 
-      switch (atoi(argv[3])) {
-        case 1: // true         
-          verbose = true; 
-          break;
-        case 0: // false
-          verbose = false;
-          break;
-        default:
-          cout << "WARNING: VERBOSE argument " << argv[3] << " not understood (should be 1 or 0)";
-      }
-    }
-    int steps = atoi(argv[1]);
-    double dt = atof(argv[2]);
-    cerr << "Steps to iterate: " << steps << ", dt: " << dt << '\n';
-    if (verbose) print_state(pos, vel, n);
-    clock_t t1 = clock();
-    cerr << "SIMULATION BEGIN\n";
-    simulate(pos, vel, n, steps, dt, verbose);
-    cerr << "SIMULATION END\n";
-    clock_t t2 = clock();
-    cerr << "Simulation completed in " << double(t2-t1)/CLOCKS_PER_SEC << " seconds.\n";
-    if (verbose) print_state(pos, vel, n);
-  } else {
-    cerr << "You can pass in an integer and a double "
-                "number of steps and dt";
-  }
-  
+
+  int steps = atoi(argv[1]);
+  double dt = atof(argv[2]);
+  cerr << "Steps to iterate: " << steps << ", dt: " << dt << '\n';
+  if (verbose) print_state(pos, vel, n);
+  clock_t t1 = clock();
+  cerr << "SIMULATION BEGIN\n";
+  simulate(pos, vel, n, steps, dt, verbose);
+  cerr << "SIMULATION END\n";
+  clock_t t2 = clock();
+  cerr << "Simulation completed in " << double(t2-t1)/CLOCKS_PER_SEC << " seconds.\n";
+  if (verbose) print_state(pos, vel, n);
+
   // free memory used for bodies
   // delete [] mass; 
   delete [] pos; 
