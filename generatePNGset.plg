@@ -1,0 +1,36 @@
+# Generate set of pictures
+#####################
+## Save to png list (which can then be converted to gif)
+## Example call:
+##    gnuplot -e "num_bodies=1000;steps=1000;stride=10" generatePNGset.plg
+
+
+## To convert to a gif run 
+#  convert -delay fps -loop 0 *.png filename.gif
+# ex. convert -delay 10 -loop 0 *.png RunA_10k.gif
+
+set term png;
+set nokey
+set autoscale
+
+# Number of bodies in file
+if (!exists("num_bodies")) num_bodies = 10000
+
+# Input data file name
+if (!exists("in_filename")) in_filename = sprintf('out%d.out',num_bodies)
+
+# PNG file output template
+if (!exists("out_filetemplate")) out_filetemplate = 'RunA_10k/Run1_10k_frame_%04d.png'
+
+# Number of steps in file
+if (!exists("steps")) steps = 1000
+
+# Skip every stride steps
+if (!exists("stride")) stride = 1
+
+do for [i = 0:steps-1:stride] {
+	print sprintf("On #%d/%d",i,steps);
+	filename = sprintf(out_filetemplate, i);
+	set output filename;
+	splot in_filename using 1:2:3 every ::2+(i*num_bodies)::2+((i+1)*num_bodies) with points ls '0';
+}
