@@ -92,22 +92,14 @@ void calculateForces(double forces[][NDIM], double pos[][NDIM], int n, int id, i
   // MPI::COMM_WORLD.Allreduce(&forces, &forces, n*NDIM, MPI::DOUBLE, MPI::SUM);
 
   // sum up forces to id 0
-  double (* forces_new)[NDIM];
   if (id == 0)
   {
-    forces_new = new double[n][NDIM];
+    MPI::COMM_WORLD.Reduce(MPI::IN_PLACE, forces, n*NDIM, MPI::DOUBLE, MPI::SUM, 0);
   }
-  MPI::COMM_WORLD.Reduce(forces, forces_new, n*NDIM, MPI::DOUBLE, MPI::SUM, 0);
-  if (id == 0)
+  else
   {
-    for (int i=0; i < n; i++) {
-      forces[i][0] = forces_new[i][0];
-      forces[i][1] = forces_new[i][1];
-      forces[i][2] = forces_new[i][2];
-    }
-    delete [] forces_new;
+    MPI::COMM_WORLD.Reduce(forces, forces, n*NDIM, MPI::DOUBLE, MPI::SUM, 0);
   }
-
 }
 
 void stepVec(double a[][NDIM], double b[][NDIM], int n, double dt)
@@ -193,12 +185,15 @@ void simulate(double pos[][NDIM], double vel[][NDIM], int n,
         cerr << "On Step " << i << '/' << steps << " - Time Spent: " << double(clock()-tStart)/CLOCKS_PER_SEC;
         cerr << "s, Time left: ~" << int( (double(clock()-tStart)/CLOCKS_PER_SEC)/(double(i)/steps) - (double(clock()-tStart)/CLOCKS_PER_SEC) ) << "s \n";
         t = clock();
+        timestamp();
       }
     }
   }
 
   delete[] forces;
 }
+
+void timestamp();
 
 int main(int argc, char *argv[])
 {
@@ -298,6 +293,7 @@ int main(int argc, char *argv[])
   if (id == 0)
   {
    t1 = clock();
+   timestamp();
    cerr << "SIMULATION BEGIN\n";
   }
 
@@ -310,6 +306,7 @@ int main(int argc, char *argv[])
     cerr << "SIMULATION END\n";
     clock_t t2 = clock();
     cerr << "Simulation completed in " << double(t2-t1)/CLOCKS_PER_SEC << " seconds.\n";
+    timestamp();
   }
   if (verbose && id == 0) print_state(pos, vel, n);
 
@@ -321,4 +318,24 @@ int main(int argc, char *argv[])
   MPI::Finalize();
   
   return 0;
+}
+
+void timestamp()
+{
+# define TIME_SIZE 40
+
+  static char time_buffer[TIME_SIZE];
+  const struct std::tm *tm_ptr;
+  // size_t len;
+  std::time_t now;
+
+  now = std::time ( NULL );
+  tm_ptr = std::localtime ( &now );
+
+  std::strftime ( time_buffer, TIME_SIZE, "%d %B %Y %I:%M:%S %p", tm_ptr );
+
+  cerr << time_buffer << endl;
+
+  return;
+# undef TIME_SIZE
 }
