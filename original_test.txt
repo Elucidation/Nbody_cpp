@@ -86,3 +86,22 @@ On Step 885/1000 - Time Spent: 55.492s, Time left: ~7s
 On Step 966/1000 - Time Spent: 60.544s, Time left: ~2s
 SIMULATION END
 Simulation completed in 62.674 seconds. ~14% faster than previous (45% than first)
+
+
+vs faster C
+------------------------
+sam@sam-tower:~/Nbody_cpp$ ./nbody 1000 0.01 < InputFiles/i1000.in > outA1000.out
+Reading input...
+Generating 1000 bodies...
+
+Done reading file.Steps to iterate: 1000, dt: 0.01
+SIMULATION BEGIN
+Simulating 1000 bodies for 1000 steps, using dt = 0.01
+On Step 148/1000 - Time Spent: 5.02796s, Time left: ~28s 
+On Step 295/1000 - Time Spent: 10.0402s, Time left: ~23s 
+On Step 441/1000 - Time Spent: 15.0502s, Time left: ~19s 
+On Step 588/1000 - Time Spent: 20.0699s, Time left: ~14s 
+On Step 735/1000 - Time Spent: 25.1031s, Time left: ~9s 
+On Step 882/1000 - Time Spent: 30.1237s, Time left: ~4s 
+SIMULATION END
+Simulation completed in 34.166 seconds. (83% faster than previous, 167% faster than original)

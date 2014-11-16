@@ -39,7 +39,7 @@ int inputCorrupt()
   return -1;
 }
 
-void evolve(double pos[][NDIM], double vel[][NDIM],int n, double dt) {  
+void evolve(double pos[][NDIM], double vel[][NDIM], double forces[][NDIM], int n, double dt) {  
   // LEAPFROG 
   double dx,dy,dz,r,r2,r3,f,fx,fy,fz;
   // half-step positions
@@ -48,6 +48,15 @@ void evolve(double pos[][NDIM], double vel[][NDIM],int n, double dt) {
     pos[i][1] += 0.5*vel[i][1]*dt;
     pos[i][2] += 0.5*vel[i][2]*dt;
   }
+
+  // Initialize forces to zero
+  for (int i=0; i < n; i++) {
+    forces[i][0] = 0;
+    forces[i][1] = 0;
+    forces[i][2] = 0;
+  }
+
+  // Calculate forces applied to each body
   for (int i=0; i < n; i++) {
     for (int j=i+1; j<n;j++) {
       dx = pos[j][0] - pos[i][0];
@@ -57,20 +66,28 @@ void evolve(double pos[][NDIM], double vel[][NDIM],int n, double dt) {
       r = sqrt(r2);
       r3 = r*r2;
       
-      f = double(G*1*1)/(r3 + ETA) * dt;  // extra divide by r in there needs to multiply
+      f = double(G*1*1)/(r3 + ETA);  // extra divide by r in there needs to multiply
       fx = dx * f;
       fy = dy * f;
       fz = dz * f;
       
-      vel[i][0] += fx;
-      vel[i][1] += fy;
-      vel[i][2] += fz;
+      forces[i][0] += fx;
+      forces[i][1] += fy;
+      forces[i][2] += fz;
       
-      vel[j][0] -= fx;
-      vel[j][1] -= fy;
-      vel[j][2] -= fz;
+      forces[j][0] -= fx;
+      forces[j][1] -= fy;
+      forces[j][2] -= fz;
     }
   }
+
+  // Apply forces to velocity
+  for (int i=0; i < n; i++) {
+    vel[i][0] += forces[i][0] * dt;
+    vel[i][1] += forces[i][1] * dt;
+    vel[i][2] += forces[i][2] * dt;
+  }
+
   // half-step positions
   for (int i=0; i < n; i++) {
     pos[i][0] += 0.5*vel[i][0]*dt;
@@ -79,15 +96,19 @@ void evolve(double pos[][NDIM], double vel[][NDIM],int n, double dt) {
   }
 }
 
-void simulate(double pos[][NDIM], double vel[][NDIM],int n, int steps,double dt, bool verbose) {
+void simulate(double pos[][NDIM], double vel[][NDIM], int n, int steps,double dt, bool verbose) {
   cout << "SIMULATING " << n << " BODIES, ";
   cout << steps << " STEPS, " << dt << " DT\n";
   cerr << "Simulating " << n << " bodies for " << steps << " steps, using dt = " << dt << '\n';
+
+  // Set up forces array ( prep for openmpi )
+  double (* forces)[NDIM] = new double[n][NDIM];
+
   clock_t tStart = clock();
   clock_t t = clock();
   for (int i=1;i<=steps;i++){
     // For each step
-    evolve(pos, vel, n,dt);
+    evolve(pos, vel, forces, n, dt);
     if ((i-1) % SKIPFRAME == 0) {
         outputBodies(pos, vel, n);
     }
@@ -102,6 +123,8 @@ void simulate(double pos[][NDIM], double vel[][NDIM],int n, int steps,double dt,
       t = clock();
     }
   }
+
+  delete[] forces;
 }
 
 int main(int argc, char *argv[])
