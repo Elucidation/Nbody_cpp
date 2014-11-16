@@ -12,8 +12,8 @@ SPEED = 1; % skip to every SPEED'th frame
 LINETYPE = '.-';
 
 %%%%%%%%%%%%%%%%%%
-
-%filename = 'testOutput.out';
+%
+% filename = 'testOutput.out';
 filename = input('Enter filename: ','s');
 if length(filename) < 4 || ~strcmp(filename(end-3:end),'.out')
     filename = [filename '.out'];
@@ -93,6 +93,11 @@ while 1
             %pause
         end
     end
+
+    if CHUNK_LENGTH == inf
+        break
+    end
+
     %axis([-1 1 -1 1 -1 1]*10);
     chunk_count = chunk_count + CHUNK_LENGTH;
     pause(0.0001);

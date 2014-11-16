@@ -57,7 +57,7 @@ void evolve(double pos[][NDIM], double vel[][NDIM],int n, double dt) {
       r = sqrt(r2);
       r3 = r*r2;
       
-      f = double(G*1*1)/(r3 + ETA) * dt;
+      f = double(G*1*1)/(r3 + ETA) * dt;  // extra divide by r in there needs to multiply
       fx = dx * f;
       fy = dy * f;
       fz = dz * f;
