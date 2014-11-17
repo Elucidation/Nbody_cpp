@@ -11,7 +11,8 @@ Speed comparison
 Running base version:
 
 ```
-./nbody 1000 0.01 < InputFiles/i1000.in > outA1000.outSteps to iterate: 1000, dt: 0.01
+./nbody 1000 0.01 < InputFiles/i1000.in > outA1000.out
+Steps to iterate: 1000, dt: 0.01
 Reading input...
 Generating 1000 bodies...
 
