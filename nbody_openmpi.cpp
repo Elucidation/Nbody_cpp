@@ -15,6 +15,10 @@ using namespace std;
 
 #define NDIM 3 // Number of dimensions (currently hardcoded to 3)
 
+//////
+void timestamp();
+//////
+
 void print_state(double pos[][NDIM], double vel[][NDIM],int n)
 {
   for (int i=0;i<n;i++) {
@@ -192,8 +196,6 @@ void simulate(double pos[][NDIM], double vel[][NDIM], int n,
 
   delete[] forces;
 }
-
-void timestamp();
 
 int main(int argc, char *argv[])
 {
