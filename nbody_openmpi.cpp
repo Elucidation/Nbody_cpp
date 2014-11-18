@@ -11,7 +11,7 @@ using namespace std;
 
 #define G 1.0
 #define ETA 0.1 // Ignore distances less than this
-#define SKIPFRAME 1 // Only output every nth step
+#define SKIPFRAME 10 // Only output every nth step
 
 #define NDIM 3 // Number of dimensions (currently hardcoded to 3)
 
