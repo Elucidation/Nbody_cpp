@@ -8,7 +8,7 @@
 #include <ctime>
 using namespace cl;
 
-#define SKIPFRAME 1 // Only output every nth step
+#define SKIPFRAME 10 // Only output every nth step
 
 void print_state(cl_float4 cl_pos[], cl_float4 cl_vel[],int n)
 {
@@ -44,8 +44,10 @@ void simulate(cl_float4 cl_pos[], cl_float4 cl_vel[], int n, int steps,double dt
   std::cout << steps << " STEPS, " << dt << " DT\n";
   std::cerr << "Simulating " << n << " bodies for " << steps << " steps, using dt = " << dt << '\n';
 
-  clock_t tStart = clock();
-  clock_t t = clock();
+  std::time_t tStart, t;
+  tStart = std::time ( NULL );
+  t = std::time ( NULL );
+
   Program program;
   std::vector<Device> devices;
   try{
@@ -124,10 +126,11 @@ void simulate(cl_float4 cl_pos[], cl_float4 cl_vel[], int n, int steps,double dt
         std::cerr << "Step " << i << ", Time " << i*dt << '\n';
         print_state(cl_pos, cl_vel, n);
       }
-      if (double(clock()-t)/CLOCKS_PER_SEC > 5.0) { // Every 5 seconds
-        std::cerr << "On Step " << i << '/' << steps << " - Time Spent: " << double(clock()-tStart)/CLOCKS_PER_SEC;
-        std::cerr << "s, Time left: ~" << int( (double(clock()-tStart)/CLOCKS_PER_SEC)/(double(i)/steps) - (double(clock()-tStart)/CLOCKS_PER_SEC) ) << "s \n";
-        t = clock();
+      // difftime A - B, remember it can be negative
+      if (difftime(std::time ( NULL ), t) >= 5) { // Every 5 seconds
+        t = std::time ( NULL );
+        std::cerr << "On Step " << i << '/' << steps << " - Time Spent: " << difftime(t,tStart);
+        std::cerr << "s, Time left: ~" << int( difftime(t,tStart)*(1.0/(double(i)/steps) - 1.0) ) << "s \n";
       }
     }
   }
@@ -202,11 +205,14 @@ int main(int argc, char *argv[])
   
   if (verbose) print_state(cl_pos, cl_vel, n);
   clock_t t1 = clock();
+  std::time_t t1c = std::time(NULL);
   std::cerr << "SIMULATION BEGIN\n";
   simulate(cl_pos, cl_vel, n, steps, dt, verbose);
   std::cerr << "SIMULATION END\n";
   clock_t t2 = clock();
-  std::cerr << "Simulation completed in " << double(t2-t1)/CLOCKS_PER_SEC << " seconds.\n";
+  std::time_t t2c = std::time(NULL);
+  std::cerr << "Simulation completed in " << double(t2-t1)/CLOCKS_PER_SEC << " CPU seconds.\n";
+  std::cerr << "Simulation completed in " << difftime(t2c,t1c) << " seconds.\n";
   if (verbose) print_state(cl_pos, cl_vel, n);
 
   // free memory used for bodies

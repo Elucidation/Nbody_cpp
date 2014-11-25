@@ -24,5 +24,5 @@ print "In File name: ", in_filename
 do for [i = 0:steps-1:stride] {
 	print sprintf("On #%d/%d",i,steps);
 	splot in_filename using 1:2:3 every ::2+(i*num_bodies)::2+((i+1)*num_bodies) with points ls '0';
-	#pause 0.01
+	pause 0.01
 }
