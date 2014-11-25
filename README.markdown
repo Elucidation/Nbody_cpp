@@ -1,5 +1,5 @@
-Basic nbody graviational simulation program in c++
-Comparison of nbody vs nbody_openmpi which uses open-mpi to run force calculations in parallel
+Basic nbody gravitational simulation program in c++
+Comparison of just CPU, using openmpi to calculate forces in parallel, and using opencl GPU to evolve steps in parallel.
 
 ![10k bodies](http://i.imgur.com/qyjwC8u.gif)
 
@@ -46,6 +46,23 @@ On Step 827/1000 - Time Spent: 20.0226s, Time left: ~4s
 SIMULATION END
 Simulation completed in 24.7905 seconds.
 ```
+
+Running with open-cl:
+
+```
+./nbody_opencl 1000 0.01 < InputFiles/i1000.in > out_cl_1000.out
+Steps to iterate: 1000, dt: 0.01
+Reading input...
+Generating 1000 bodies...
+
+Done reading file.SIMULATION BEGIN
+Simulating 1000 bodies for 1000 steps, using dt = 0.01
+On Step 463/1000 - Time Spent: 5.00111s, Time left: ~5s 
+On Step 942/1000 - Time Spent: 10.0075s, Time left: ~0s 
+SIMULATION END
+Simulation completed in 10.6247 seconds.
+```
+
 
 Usage without Open-MPI
 ---
