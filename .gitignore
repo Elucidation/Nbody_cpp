@@ -5,5 +5,7 @@ nbody
 nbody.o
 nbody_openmpi
 nbody_openmpi.o
+nbody_opencl
+nbody_opencl.o
 *.asv
 Thumbs.db
